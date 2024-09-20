@@ -1,13 +1,20 @@
 provider "aws" {
-  region = "ap-south-1"
+  region = var.region
 }
 
 module "codepipeline" {
-  source          = "./module/codepipeline"
-  github_repo_url = var.github_repo_url
-  ecs_cluster     = var.ecs_cluster
-  ecs_service     = var.ecs_service
-  s3_bucket       = var.s3_bucket
-  github_token    = var.github_token
+  source              = "./module/codepipeline"
+  
+  # Variables to be passed to the module
+  region              = var.region
+  codebuild_role_name = var.codebuild_role_name
+  s3_bucket           = var.s3_bucket
+  github_repo_url     = var.github_repo_url
+  github_owner        = var.github_owner
+  github_repo_name    = var.github_repo_name
+  github_branch       = var.github_branch
+  github_token        = var.github_token
+  ecs_cluster         = var.ecs_cluster
+  ecs_service         = var.ecs_service
 }
 
