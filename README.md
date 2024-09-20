@@ -36,5 +36,7 @@ root
         └─── main.tf          # CodePipeline-specific resources
         └─── variables.tf     # Variables for CodePipeline module
 ```
+
 LICENSE
+
 This project is licensed under the MIT License.
