@@ -14,15 +14,6 @@ This Terraform setup provides a streamlined solution to automate the build, stor
 - **PRIVATE S3**: Stores build artifacts securely in a private S3 bucket.
 - **CODEDEPLOY**: Manages the deployment and versioning of your application.
 
-## AWS SERVICES UTILIZED
-
-- **AWS CODEPIPELINE**: Automates the build and deployment lifecycle.
-- **AWS CODEBUILD**: Compiles and packages the application code.
-- **AMAZON S3**: Private storage for build artifacts.
-- **AMAZON ECR**: Docker container registry for storing built images.
-- **AMAZON ECS**: Elastic container service for deploying the app in Docker containers.
-- **AWS CODEDEPLOY**: Manages application versions and deployment strategies.
-
 ## PROJECT STRUCTURE
 
 Here’s how the project is structured:
