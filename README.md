@@ -2,7 +2,7 @@
 
 ## OVERVIEW
 
-This Terraform setup provides a streamlined solution to automate the build, storage, and deployment of your application on AWS ECS. While it’s versatile enough for any app, this specific example deploys a Django application. The entire pipeline is managed through AWS services like CodePipeline, CodeBuild, and ECS, ensuring a smooth and continuous deployment process from GitHub to production.
+This Terraform setup provides a streamlined solution to automate the build, storage, and deployment of your application on AWS ECS. While it’s versatile enough for any app, i used a Django application. The entire pipeline is managed through AWS services like CodePipeline, CodeBuild, and ECS, ensuring a smooth and continuous deployment process from GitHub to production.
 
 ## KEY FEATURES
 
@@ -33,8 +33,8 @@ root
 ├── terraform.tfvars     # Optional: Add your environment-specific values here
 └───module
     └───codepipeline
-          └─── main.tf          # CodePipeline-specific resources
-          └─── variables.tf     # Variables for CodePipeline module
+        └─── main.tf          # CodePipeline-specific resources
+        └─── variables.tf     # Variables for CodePipeline module
 
 LICENSE
 This project is licensed under the MIT License.
