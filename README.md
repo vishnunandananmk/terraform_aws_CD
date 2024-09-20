@@ -26,7 +26,7 @@ This Terraform setup provides a streamlined solution to automate the build, stor
 ## PROJECT STRUCTURE
 
 Here’s how the project is structured:
-
+```
 root
 ├── main.tf              # Main Terraform configuration
 ├── variables.tf         # Variables used across the setup
@@ -35,6 +35,6 @@ root
     └───codepipeline
         └─── main.tf          # CodePipeline-specific resources
         └─── variables.tf     # Variables for CodePipeline module
-
+```
 LICENSE
 This project is licensed under the MIT License.
