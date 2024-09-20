@@ -2,7 +2,6 @@ provider "aws" {
   region = var.region
 }
 
-# IAM Role for CodeBuild
 resource "aws_iam_role" "codebuild_role" {
   name = var.codebuild_role_name
 
@@ -12,16 +11,42 @@ resource "aws_iam_role" "codebuild_role" {
       Action    = "sts:AssumeRole"
       Effect    = "Allow"
       Principal = {
-        "Service": [
-		"codepipeline.amazonaws.com",
-		"codebuild.amazonaws.com"
-	]
+        Service = "codebuild.amazonaws.com"
       }
     }]
   })
 }
 
-# Attach policies to the role for S3, ECR, and ECS access
+resource "aws_iam_policy" "codebuild_service_policy" {
+  name = "codebuild-service-policy"
+  
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability",
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "codebuild_service_policy" {
+  role       = aws_iam_role.codebuild_role.name
+  policy_arn = aws_iam_policy.codebuild_service_policy.arn
+}
+
+
 resource "aws_iam_role_policy_attachment" "codebuild_s3_policy" {
   role       = aws_iam_role.codebuild_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
@@ -37,7 +62,56 @@ resource "aws_iam_role_policy_attachment" "codebuild_ecs_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
 }
 
-# S3 bucket for storing artifacts
+resource "aws_iam_role" "codepipeline_role" {
+  name = "codepipeline-service-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "codepipeline.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "codepipeline_policy" {
+  name = "codepipeline-policy"
+  
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "codebuild:StartBuild",
+          "codebuild:BatchGetBuilds"
+        ],
+        Resource = aws_codebuild_project.codebuild.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "codepipeline_policy" {
+  role       = aws_iam_role.codepipeline_role.name
+  policy_arn = aws_iam_policy.codepipeline_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "codebuild_s3_policy_codepipeline" {
+  role       = aws_iam_role.codepipeline_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "codepipeline_ecs_policy" {
+  role       = aws_iam_role.codepipeline_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
 resource "aws_s3_bucket" "artifact_bucket" {
   bucket = var.s3_bucket
   acl    = "private"
@@ -53,6 +127,11 @@ resource "aws_codebuild_project" "codebuild" {
     image                       = "aws/codebuild/standard:5.0"
     type                        = "LINUX_CONTAINER"
     privileged_mode             = true
+
+    environment_variable {
+      name  = "ecs_container_name"
+      value = var.ecs_service
+    }
   }
 
   source {
@@ -69,10 +148,9 @@ resource "aws_codebuild_project" "codebuild" {
   build_timeout = 5
 }
 
-# CodePipeline resource
 resource "aws_codepipeline" "pipeline" {
   name     = "my-codepipeline"
-  role_arn = aws_iam_role.codebuild_role.arn
+  role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
     location = aws_s3_bucket.artifact_bucket.bucket

@@ -5,7 +5,6 @@ provider "aws" {
 module "codepipeline" {
   source              = "./module/codepipeline"
   
-  # Variables to be passed to the module
   region              = var.region
   codebuild_role_name = var.codebuild_role_name
   s3_bucket           = var.s3_bucket
